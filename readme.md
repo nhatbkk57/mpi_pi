@@ -1,6 +1,6 @@
-#Tuturial to compile and launch MPI C program on Chaos Cluster
+# Tuturial to compile and launch MPI C program on Chaos Cluster
 
-### 
+### Convention 
 - (access): mean on the access node (or login node)
 - (compute): mean on the compute node which is provided by interactive or passive job request.
 
@@ -15,11 +15,11 @@ ssh -p 8022 user_name@access-chaos.uni.lu
 (access) cd mpi_pi
 ```
 #### For Interactive Mode:
-- Request a interactive job:
+- Request a interactive job with "1 node having 8 core in 1 hour":
 ```
 (access) oarsub -I -l nodes=1/core=8,walltime=1
 ```
-- Now, you are in compute node.
+##### Now, we are in compute node.
 ##### For Intel MPI
 - Create build directory
 ```
