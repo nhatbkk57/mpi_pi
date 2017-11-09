@@ -39,11 +39,11 @@ ssh -p 8022 user_name@access-chaos.uni.lu
 ```
 - Now, compile the code:
 ```
-mpiicc ../pi_trapezium_par.c -o pi_trapezium_par
+(compute) mpiicc ../pi_trapezium_par.c -o pi_trapezium_par
 ```
 - And lauch the program with 8 processor:
 ```
-mpirun -n 8 ./pi_trapezium_par
+(compute) mpirun -n 8 ./pi_trapezium_par
 ```
 
 ##### For Open MPI
@@ -65,9 +65,12 @@ mpirun -n 8 ./pi_trapezium_par
 ```
 - Now, compile the code:
 ```
-mpicc ../pi_trapezium_par.c -o pi_trapezium_par
+(compute) mpicc ../pi_trapezium_par.c -o pi_trapezium_par
 ```
 - And lauch the program with 8 processor:
 ```
-mpirun -np 8 pi_trapezium_par
+(compute) mpirun -np 8 pi_trapezium_par
 ```
+
+#### For Passive Mode:
+(updating)
