@@ -10,14 +10,14 @@
 
 int main(int argc, char** argv)
 {
-    double e;
+    float e;
     double start, end;
-    double pi=0.0;
+    float pi=0.0;
     MPI_Status status;
     int request_tag = 0, chunk_tag = 1, pi_tag = 2;
     int total_done =0;
     const int chunk_size = 20000;
-    double chunk[chunk_size];
+    float chunk[chunk_size];
 
     srand((unsigned int)time(NULL));
 
@@ -74,7 +74,7 @@ int main(int argc, char** argv)
             if(request){
                 #pragma omp parallel for
                 for (int i=0; i<chunk_size; i++){
-                    chunk[i] = ((double)rand())/RAND_MAX;
+                    chunk[i] = ((float)rand())/RAND_MAX;
                 }
                 MPI_Send(&chunk, chunk_size, MPI_REAL,status.MPI_SOURCE,chunk_tag,MPI_COMM_WORLD);
                 // printf("Server %d send array %f to worker %d\n",world_rank,chunk[2],status.MPI_SOURCE);
@@ -99,16 +99,16 @@ int main(int argc, char** argv)
             // printf("Woker %d receive chunk= %f from server %d \n",world_rank,chunk[2],server_rank);
             #pragma omp parallel for reduction(+:inside_count)
             for (int i=0; i<chunk_size; i+=2) {
-                double x = chunk[i];
-                double y = chunk[i+1];
-                double z = x*x + y*y;
+                float x = chunk[i];
+                float y = chunk[i+1];
+                float z = x*x + y*y;
                 if (z<=1) inside_count++;
                 // int np = omp_get_num_threads();
                 // int iam = omp_get_thread_num();
                 // printf("Hello from thread %d out of %d is counting =%d\n", iam, np,inside_count);
             }
-            pi=(double)(4*inside_count)/(chunk_size/2); //4 quadrants of circle
-            double temp_e = fabs((pi-PI)/PI);
+            pi=(float)(4*inside_count)/(chunk_size/2); //4 quadrants of circle
+            float temp_e = fabs((pi-PI)/PI);
             
             if(temp_e<= e) {
                 MPI_Send(&pi, 1, MPI_REAL, 0, pi_tag, worker_comm);

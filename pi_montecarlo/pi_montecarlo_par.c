@@ -9,15 +9,15 @@
 
 int main(int argc, char** argv)
 {
-    double e; 
+    float e; 
     double start,end;
-    double pi=0.0;
+    float pi=0.0;
     MPI_Status status;
     int master =0;
     int request_tag = 0, chunk_tag = 1, pi_tag = 2;
     int total_done =0;
-    const int chunk_size = 20000;
-    double chunk[chunk_size];
+    const int chunk_size = 1000;
+    float chunk[chunk_size];
 
     srand((unsigned int)time(NULL));
 
@@ -59,75 +59,75 @@ int main(int argc, char** argv)
     int done=0;
     if (world_rank == server_rank) {
         while(done !=(world_size-1)){
-            // printf("[%d]: Server Done = %d\n", world_rank, done);
+            printf("[%d]: Server Done = %d\n", world_rank, done);
             int request;
             int flag = 0;
 
             while(!flag){
-                // printf("Server %d check incoming message = %d\n",world_rank,flag);
+                printf("Server %d check incoming message = %d\n",world_rank,flag);
                 MPI_Iprobe(MPI_ANY_SOURCE, request_tag, MPI_COMM_WORLD, &flag, &status );
                 
             }
-            // printf("Server %d receive incoming message = %d\n",world_rank,flag);
+            printf("Server %d receive incoming message = %d\n",world_rank,flag);
             MPI_Recv(&request,1,MPI_INT,MPI_ANY_SOURCE,request_tag,MPI_COMM_WORLD,&status);
-            // printf("Server %d receive request = %d from worker %d\n",world_rank,request,status.MPI_SOURCE);
+            printf("Server %d receive request = %d from worker %d\n",world_rank,request,status.MPI_SOURCE);
             if(request){
                 for (int i=0; i<chunk_size; i++){
-                    chunk[i] = ((double)rand())/RAND_MAX;
+                    chunk[i] = ((float)rand())/RAND_MAX;
                 }
                 MPI_Send(&chunk, chunk_size, MPI_REAL,status.MPI_SOURCE,chunk_tag,MPI_COMM_WORLD);
-                // printf("Server %d send array %f to worker %d\n",world_rank,chunk[2],status.MPI_SOURCE);
+                printf("Server %d send array %f to worker %d\n",world_rank,chunk[2],status.MPI_SOURCE);
             }
             else{
                 done++;
-                // printf("[%d] count done = %d\n",world_rank,done);
+                printf("[%d] count done = %d\n",world_rank,done);
             }
         }
-        // printf("==============Server Done==============\n");
+        printf("==============Server Done==============\n");
     }
     else {
         while(!total_done){
-            // printf("[%d]: Before Reduce, total_done is %d\n", world_rank, total_done);
+            printf("[%d]: Before Reduce, total_done is %d\n", world_rank, total_done);
             int inside_count = 0;
             int request = 1;
-            // printf("[%d]\n",world_rank);
+            printf("[%d]\n",world_rank);
             MPI_Send(&request, 1, MPI_INT,server_rank,request_tag,MPI_COMM_WORLD);
-            // printf("Worker %d send request= %d to server %d\n",world_rank,request,server_rank);
+            printf("Worker %d send request= %d to server %d\n",world_rank,request,server_rank);
 
             MPI_Recv(&chunk,chunk_size,MPI_REAL,server_rank,chunk_tag,MPI_COMM_WORLD,&status);
-            // printf("Woker %d receive chunk= %f from server %d \n",world_rank,chunk[2],server_rank);
+            printf("Woker %d receive chunk= %f from server %d \n",world_rank,chunk[2],server_rank);
             for (int i=0; i<chunk_size; i+=2) {
-                double x = chunk[i];
-                double y = chunk[i+1];
-                double z = x*x + y*y;
+                float x = chunk[i];
+                float y = chunk[i+1];
+                float z = x*x + y*y;
                 if (z<=1) inside_count++; 
             } /* for all the slave processes send results to the master */
-            pi=(double)(4*inside_count)/(chunk_size/2); //4 quadrants of circle
-            double temp_e = fabs((pi-PI)/PI);
+            pi=(float)(4*inside_count)/(chunk_size/2); //4 quadrants of circle
+            float temp_e = fabs((pi-PI)/PI);
             if(temp_e<= e) {
                 MPI_Send(&pi, 1, MPI_REAL, 0, pi_tag, worker_comm);
-                // printf("[%d] Worker %d satisfies!\n",world_rank,worker_rank);
-                // printf("PI = %f and Temp_Error = %f and Error = %f\n",pi,temp_e,e);
+                printf("[%d] Worker %d satisfies!\n",world_rank,worker_rank);
+                printf("PI = %f and Temp_Error = %f and Error = %f\n",pi,temp_e,e);
                 done = 1;  
             }
             MPI_Allreduce(&done, &total_done, 1, MPI_INT, MPI_SUM, worker_comm);
-            // printf("[%d]: After Reduce, total_done is %d\n", world_rank, total_done);
+            printf("[%d]: After Reduce, total_done is %d\n", world_rank, total_done);
             if (total_done){
                 int request = 0;
                 MPI_Send(&request, 1, MPI_INT,server_rank,request_tag,MPI_COMM_WORLD);
-                // printf("Done: Worker %d send request= %d to server %d\n",world_rank,request,server_rank);
+                printf("Done: Worker %d send request= %d to server %d\n",world_rank,request,server_rank);
             }
         }
     }
-    // printf("==============Worker [%d] Done==============\n",world_rank);
+    printf("==============Worker [%d] Done==============\n",world_rank);
     
     if (world_rank == 0){
         int flag = 0;
         while(!flag){
-            // printf("[%d] check incoming PI message = %d\n",world_rank,flag);
+            printf("[%d] check incoming PI message = %d\n",world_rank,flag);
             MPI_Iprobe(MPI_ANY_SOURCE, pi_tag, worker_comm, &flag, &status );
         }
-        // printf("[%d] receive PI message from [%d] - flag = %d\n",world_rank,status.MPI_SOURCE,flag);
+        printf("[%d] receive PI message from [%d] - flag = %d\n",world_rank,status.MPI_SOURCE,flag);
         MPI_Recv(&pi,1,MPI_REAL,status.MPI_SOURCE,pi_tag,worker_comm,&status);
     }  
 
