@@ -6,7 +6,6 @@
 
 double f(double x){
     double t = 4.0/(1+x*x);
-    // printf("Test t= %f /n",t);
     return t;
 }
 
