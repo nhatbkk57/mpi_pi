@@ -16,7 +16,7 @@ int main(int argc, char** argv)
     int master =0;
     int request_tag = 0, chunk_tag = 1, pi_tag = 2;
     int total_done =0;
-    const int chunk_size = 1000;
+    const int chunk_size = 100000000;
     float chunk[chunk_size];
 
     srand((unsigned int)time(NULL));
